@@ -30,7 +30,7 @@ Pour lancer tous les tests :
 Pour lancer un test spécifique :
 
       npm i -g jest-cli
-      jest src/__tests__/your_test_file.js
+      npm run test src/__tests__/your_test_file.js
 
 
 Ce projet a été réalisé dans le cadre de ma formation de développeuse d'application. L'axe principal de travail consiste à débugger et tester une Saas.
