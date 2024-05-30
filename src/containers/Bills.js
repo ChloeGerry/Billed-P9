@@ -2,7 +2,7 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import { formatDate, formatStatus } from "../app/format.js";
 import Logout from "./Logout.js";
 
-export default class {
+export default class Bills {
   constructor({ document, onNavigate, store, localStorage }) {
     this.document = document;
     this.onNavigate = onNavigate;
@@ -39,6 +39,7 @@ export default class {
         .bills()
         .list()
         .then((snapshot) => {
+          this.sortBillsByDate(snapshot);
           const bills = snapshot.map((doc) => {
             try {
               return {
@@ -60,5 +61,9 @@ export default class {
           return bills;
         });
     }
+  };
+
+  sortBillsByDate = (bills) => {
+    return bills.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 }

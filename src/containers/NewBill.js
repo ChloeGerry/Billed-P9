@@ -19,7 +19,7 @@ export default class NewBill {
   handleChangeFile = (e) => {
     e.preventDefault();
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0];
-    const fileType = file["type"];
+    const fileType = file.type;
     const fileTypesAuthorised = ["image/png", "image/jpg", "image/jpeg"];
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
