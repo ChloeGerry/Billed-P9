@@ -2,30 +2,114 @@
  * @jest-environment jsdom
  */
 
-import { screen } from "@testing-library/dom";
+import { screen, waitFor, fireEvent } from "@testing-library/dom";
+import router from "../app/Router.js";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
+import { ROUTES_PATH } from "../constants/routes";
+import { localStorageMock } from "../__mocks__/localStorage.js";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
-    test("Then ...", () => {
-      const html = NewBillUI();
-      document.body.innerHTML = html;
-      //to-do write assertion
+    test("Then I should see new bills form", async () => {
+      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "e@e" }));
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.NewBill);
+
+      await waitFor(() => screen.getByText("Envoyer une note de frais"));
+      const billsType = screen.getByText("Type de dépense");
+      expect(billsType).toBeTruthy();
+      const billsName = screen.getByText("Nom de la dépense");
+      expect(billsName).toBeTruthy();
+      const billsDate = screen.getByText("Date");
+      expect(billsDate).toBeTruthy();
+      const billsAmount = screen.getByText("Montant TTC");
+      expect(billsAmount).toBeTruthy();
+      const billsTVA = screen.getByText("TVA");
+      expect(billsTVA).toBeTruthy();
+      const billsComment = screen.getByText("Commentaire");
+      expect(billsComment).toBeTruthy();
+      const billsJustificative = screen.getByText("Justificatif");
+      expect(billsJustificative).toBeTruthy();
+    });
+
+    describe("When add a new bills", () => {
+      test("Then it should trigger the updateBill function", () => {
+        Object.defineProperty(window, "localStorage", { value: localStorageMock });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.append(root);
+        document.body.innerHTML = NewBillUI();
+        const onNavigate = jest.fn();
+        const store = null;
+
+        const newBillPage = new NewBill({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        const spyOnHandleSubmit = jest.spyOn(newBillPage, "handleSubmit");
+        const formNewBill = document.querySelector(`form[data-testid="form-new-bill"]`);
+        formNewBill.addEventListener("submit", newBillPage.handleSubmit);
+        fireEvent.submit(formNewBill);
+
+        expect(spyOnHandleSubmit).toHaveBeenCalled();
+      });
+    });
+
+    describe("When I add file", () => {
+      test("Then it should trigger the handleChangeFile function", async () => {
+        Object.defineProperty(window, "localStorage", { value: localStorageMock });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+            email: "e@e",
+          })
+        );
+
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.append(root);
+        document.body.innerHTML = NewBillUI();
+
+        const onNavigate = jest.fn();
+        const mockStore = {
+          bills: () => ({
+            create: jest.fn().mockResolvedValue({ fileUrl: "url", key: "12345" }),
+          }),
+        };
+
+        const newBillPage = new NewBill({
+          document,
+          onNavigate,
+          store: mockStore,
+          localStorage: window.localStorage,
+        });
+
+        const fileInput = document.querySelector(`input[data-testid="file"]`);
+        const file = new File(["content"], "mockTest.png", { type: "image/png" });
+        Object.defineProperty(fileInput, "files", {
+          value: [file],
+        });
+
+        const spyOnHandleChangeFile = jest.spyOn(newBillPage, "handleChangeFile");
+        fileInput.addEventListener("change", newBillPage.handleChangeFile);
+        fireEvent.change(fileInput);
+
+        expect(spyOnHandleChangeFile).toHaveBeenCalled();
+      });
     });
   });
 });
-
-// test('console.log"', () => {
-//   const logSpy = jest.spyOn(console, "log");
-//   const store = null;
-//   const dashboard = new Dashboard({
-//     document,
-//     onNavigate,
-//     store,
-//     bills,
-//     localStorage: window.localStorage,
-//   });
-
-//   expect(logSpy).toHaveBeenCalledWith(handleClickNewBill);
-// });
