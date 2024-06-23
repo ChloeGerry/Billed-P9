@@ -194,17 +194,17 @@ describe("When I navigate to the employee's dashboard", () => {
     window.onNavigate(ROUTES_PATH.Bills);
     await waitFor(() => screen.getByText("Mes notes de frais"));
 
-    const billsType = await screen.getByText("Type");
+    const billsType = await screen.findByText("Type");
     expect(billsType).toBeTruthy();
-    const billsName = await screen.getByText("Nom");
+    const billsName = await screen.findByText("Nom");
     expect(billsName).toBeTruthy();
-    const billsDate = await screen.getByText("Date");
+    const billsDate = await screen.findByText("Date");
     expect(billsDate).toBeTruthy();
-    const billsAmount = await screen.getByText("Montant");
+    const billsAmount = await screen.findByText("Montant");
     expect(billsAmount).toBeTruthy();
-    const billsStatut = await screen.getByText("Statut");
+    const billsStatut = await screen.findByText("Statut");
     expect(billsStatut).toBeTruthy();
-    const billsActions = await screen.getByText("Actions");
+    const billsActions = await screen.findByText("Actions");
     expect(billsActions).toBeTruthy();
   });
 });
