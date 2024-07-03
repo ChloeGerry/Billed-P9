@@ -7,6 +7,7 @@ import router from "../app/Router.js";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { ROUTES_PATH } from "../constants/routes";
+import mockStore from "../__mocks__/store";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 
 describe("Given I am connected as an employee", () => {
@@ -36,8 +37,81 @@ describe("Given I am connected as an employee", () => {
       expect(billsJustificative).toBeTruthy();
     });
 
-    describe("When add a new bills", () => {
-      test("Then it should trigger the updateBill function", () => {
+    describe("When I fill correctly the form and I submit it", () => {
+      test("a new bill should be created", async () => {
+        const newBill = {
+          type: "IT et électronique",
+          name: "test",
+          date: "2024-07-02",
+          amount: 700,
+          commentary: "test",
+          fileUrl: "https://localhost:3456/images/test.jpg",
+          pct: 20,
+        };
+
+        const mockStoreBills = mockStore.bills();
+
+        mockStoreBills.create(() => {
+          return {
+            fileUrl: "https://localhost:3456/images/test.jpg",
+            key: "1234",
+          };
+        });
+
+        window.onNavigate(ROUTES_PATH.Bills);
+        await new Promise(process.nextTick);
+
+        const createdBill = await mockStoreBills.create(newBill);
+        expect(createdBill).toEqual({
+          fileUrl: "https://localhost:3456/images/test.jpg",
+          key: "1234",
+        });
+        expect(newBill).toBeTruthy();
+      });
+    });
+
+    describe("When an error occurs on API", () => {
+      beforeEach(() => {
+        jest.spyOn(mockStore, "bills");
+        Object.defineProperty(window, "localStorage", { value: localStorageMock });
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+            email: "e@e",
+          })
+        );
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.appendChild(root);
+        router();
+      });
+
+      test("create new bill fails with 404 message error", async () => {
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.append(root);
+        document.body.innerHTML = "Erreur 404";
+        const message = await screen.findByText(/Erreur 404/);
+        expect(message).toBeTruthy();
+      });
+
+      test("create new bill fails with 500 message error", async () => {
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        document.body.append(root);
+        document.body.innerHTML = "Erreur 500";
+        const message = await screen.findByText(/Erreur 500/);
+        expect(message).toBeTruthy();
+      });
+    });
+  });
+});
+
+describe("Given I am connected as an employee", () => {
+  describe("When I am on NewBill Page", () => {
+    describe("When I add a new bill", () => {
+      test("Then it should trigger form submit button", () => {
         Object.defineProperty(window, "localStorage", { value: localStorageMock });
         window.localStorage.setItem(
           "user",

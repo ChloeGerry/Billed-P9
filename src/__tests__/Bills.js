@@ -11,6 +11,7 @@ import Bills from "../containers/Bills.js";
 import { ROUTES, ROUTES_PATH } from "../constants/routes";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import { mockSortBillsByDate } from "../__mocks__/functions.js";
+import mockStore from "../__mocks__/store";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -67,6 +68,7 @@ describe("Given I am connected as an employee", () => {
       const spyOnGetBills = jest.spyOn(employeeDashboard, "getBills");
       const mockedBills = await employeeDashboard.getBills();
       expect(spyOnGetBills).toHaveBeenCalled();
+      expect(mockedBills).toBeTruthy();
     });
   });
 
@@ -184,7 +186,7 @@ describe("Given I am connected as an employee", () => {
   });
 });
 
-describe("When I navigate to the employee's dashboard", () => {
+describe("When I navigate to the Bills page", () => {
   test("Then it should fetches bills from mock API GET", async () => {
     localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "e@e" }));
     const root = document.createElement("div");
@@ -206,5 +208,41 @@ describe("When I navigate to the employee's dashboard", () => {
     expect(billsStatut).toBeTruthy();
     const billsActions = await screen.findByText("Actions");
     expect(billsActions).toBeTruthy();
+  });
+
+  describe("When an error occurs on API", () => {
+    beforeEach(() => {
+      jest.spyOn(mockStore, "bills");
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+          email: "e@e",
+        })
+      );
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.appendChild(root);
+      router();
+    });
+
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      document.body.innerHTML = "Erreur 404";
+      const message = await screen.findByText(/Erreur 404/);
+      expect(message).toBeTruthy();
+    });
+
+    test("fetches messages from an API and fails with 500 message error", async () => {
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      document.body.innerHTML = "Erreur 500";
+      const message = await screen.findByText(/Erreur 500/);
+      expect(message).toBeTruthy();
+    });
   });
 });
