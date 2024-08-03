@@ -15,7 +15,7 @@ import mockStore from "../__mocks__/store";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
-    test("Then bill icon in vertical layout should be highlighted", async () => {
+    test("Then bill's icon in vertical layout should be highlighted", async () => {
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
       window.localStorage.setItem(
         "user",
@@ -151,7 +151,7 @@ describe("Given I am connected as an employee", () => {
   });
 
   describe("When I click on the new bill button", () => {
-    test("Then I should navigates to NewBill page", () => {
+    test("Then I should navigate to NewBill page", () => {
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
       window.localStorage.setItem(
         "user",
